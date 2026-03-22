@@ -17,6 +17,25 @@ const STEPS: Array<{ id: Step; label: string }> = [
     { id: 3, label: "Matches" },
 ];
 
+function inferSkillCount(text: string): number {
+    const normalized = text.toLowerCase();
+    const terms = [
+        "react",
+        "typescript",
+        "node.js",
+        "nodejs",
+        "postgresql",
+        "docker",
+        "redis",
+        "microservices",
+        "websockets",
+        "real-time",
+        "api",
+    ];
+
+    return terms.filter((term) => normalized.includes(term)).length;
+}
+
 function getStepState(currentStep: Step, step: Step): "done" | "active" | "idle" {
     if (step < currentStep) {
         return "done";
@@ -25,6 +44,16 @@ function getStepState(currentStep: Step, step: Step): "done" | "active" | "idle"
         return "active";
     }
     return "idle";
+}
+
+function getLoadingLabel(step: Step): string {
+    if (step === 1) {
+        return "Analyzing";
+    }
+    if (step === 2) {
+        return "Adding";
+    }
+    return "Analyzing";
 }
 
 export default function App() {
@@ -67,6 +96,9 @@ export default function App() {
                     id: response.id,
                     title,
                     company,
+                    skillCount: inferSkillCount(
+                        `${title} ${company} ${description}`.trim(),
+                    ),
                 },
             ]);
         } catch (err) {
@@ -81,7 +113,7 @@ export default function App() {
         setError(null);
 
         try {
-            const response = await findMatches(resumeText);
+            const response = await findMatches(resumeText, 5);
             setMatches(response.matches);
             setStep(3);
         } catch (err) {
@@ -92,22 +124,25 @@ export default function App() {
     }
 
     return (
-        <main className="min-h-screen bg-[#0f1117] px-4 py-8 font-sans text-white sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-6xl">
-                <header className="mb-8">
-                    <p className="text-sm uppercase tracking-[0.35em] text-indigo-300">
-                        Resume Job Matcher
-                    </p>
-                    <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-                        Semantic job matching with Endee
+        <main className="app-shell">
+            <div className="container">
+                <header className="page-header">
+                    <p className="eyebrow">Resume Job Matcher</p>
+                    <h1 className="display-title">
+                        Semantic matching for developers who care about signal.
                     </h1>
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                        Paste a resume, ingest job descriptions, and rank the
-                        strongest matches with vector search and AI explanations.
+                    <p className="page-copy">
+                        Paste a resume, ingest a small set of roles, and rank
+                        the strongest fit using Endee vector search with
+                        explanation generation on top.
                     </p>
                 </header>
 
-                <nav className="mb-8 grid gap-3 md:grid-cols-3">
+                <nav
+                    className="stepper"
+                    aria-label="Workflow steps"
+                >
+                    <div className="stepper-line" aria-hidden="true" />
                     {STEPS.map((item) => {
                         const state = getStepState(step, item.id);
                         const isClickable =
@@ -119,129 +154,120 @@ export default function App() {
                             <button
                                 key={item.id}
                                 type="button"
+                                className="stepper-item"
+                                disabled={!isClickable}
                                 onClick={() => {
                                     if (isClickable) {
                                         setStep(item.id);
                                         setError(null);
                                     }
                                 }}
-                                disabled={!isClickable}
-                                className={`rounded-2xl border px-4 py-4 text-left transition ${
-                                    state === "active"
-                                        ? "border-[#6366f1] bg-[#1a1d27] shadow-[0_0_0_1px_rgba(99,102,241,0.35)]"
-                                        : state === "done"
-                                          ? "border-emerald-500/30 bg-[#1a1d27]"
-                                          : "border-slate-800 bg-[#1a1d27]/60"
-                                } disabled:cursor-not-allowed disabled:opacity-70`}
                             >
-                                <div className="flex items-center gap-3">
-                                    <span
-                                        className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${
-                                            state === "active"
-                                                ? "bg-[#6366f1] text-white"
-                                                : state === "done"
-                                                  ? "bg-emerald-500 text-white"
-                                                  : "bg-slate-800 text-slate-300"
-                                        }`}
-                                    >
-                                        {state === "done" ? "✓" : item.id}
-                                    </span>
-                                    <div>
-                                        <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-                                            Step {item.id}
-                                        </p>
-                                        <p className="mt-1 text-lg font-medium">
-                                            {item.label}
-                                        </p>
-                                    </div>
-                                </div>
+                                <span
+                                    className={`stepper-dot stepper-dot--${state}`}
+                                    aria-hidden="true"
+                                >
+                                    {state === "done" ? "✓" : item.id}
+                                </span>
+                                <span className="stepper-label">{item.label}</span>
                             </button>
                         );
                     })}
                 </nav>
 
-                {step === 1 ? (
-                    <ResumeInput
-                        resumeText={resumeText}
-                        skills={resumeSkills}
-                        loading={loading}
-                        error={error}
-                        onResumeTextChange={setResumeText}
-                        onSubmit={handleResumeSubmit}
-                    />
-                ) : null}
-
-                {step === 2 ? (
-                    <div className="space-y-6">
+                <section className="section-stack">
+                    {step === 1 ? (
                         <ResumeInput
                             resumeText={resumeText}
                             skills={resumeSkills}
-                            loading={false}
-                            error={null}
+                            loading={loading}
+                            error={error}
                             onResumeTextChange={setResumeText}
                             onSubmit={handleResumeSubmit}
+                            loadingLabel={getLoadingLabel(1)}
                         />
-                        <JobInput
-                            jobs={jobs}
-                            loading={loading}
-                            error={error}
-                            onAddJob={handleAddJob}
-                        />
-                        <div className="rounded-2xl bg-[#1a1d27] p-6 shadow-xl">
-                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <h2 className="text-xl font-semibold">
-                                        Ready to match
-                                    </h2>
-                                    <p className="mt-2 text-sm text-slate-300">
-                                        Add at least one job description, then
-                                        move to step 3.
-                                    </p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={handleFindMatches}
-                                    disabled={loading || jobs.length === 0}
-                                    className="rounded-xl bg-[#6366f1] px-4 py-2 font-medium text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                    {loading ? "Matching..." : "Find Best Matches"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : null}
+                    ) : null}
 
-                {step === 3 ? (
-                    <div className="space-y-6">
-                        <div className="rounded-2xl bg-[#1a1d27] p-6 shadow-xl">
-                            <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div>
-                                    <h2 className="text-xl font-semibold">
-                                        Matching summary
-                                    </h2>
-                                    <p className="mt-2 text-sm text-slate-300">
-                                        {jobs.length} job{jobs.length === 1 ? "" : "s"} ingested and{" "}
-                                        {matches.length} match{matches.length === 1 ? "" : "es"} returned.
-                                    </p>
+                    {step === 2 ? (
+                        <>
+                            <ResumeInput
+                                resumeText={resumeText}
+                                skills={resumeSkills}
+                                loading={false}
+                                error={null}
+                                onResumeTextChange={setResumeText}
+                                onSubmit={handleResumeSubmit}
+                                loadingLabel={getLoadingLabel(1)}
+                            />
+                            <JobInput
+                                jobs={jobs}
+                                loading={loading}
+                                error={error}
+                                onAddJob={handleAddJob}
+                                loadingLabel={getLoadingLabel(2)}
+                            />
+                            <section className="panel">
+                                <div className="panel-row">
+                                    <div>
+                                        <h2 className="panel-title">
+                                            Ready to compare
+                                        </h2>
+                                        <p className="panel-copy">
+                                            Add at least one job, then rank the
+                                            strongest matches against your
+                                            indexed resume.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="button button--primary"
+                                        disabled={loading || jobs.length === 0}
+                                        onClick={handleFindMatches}
+                                    >
+                                        {loading ? "Analyzing···" : "Find matches"}
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setStep(2)}
-                                    className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-slate-500"
-                                >
-                                    Back to Jobs
-                                </button>
-                            </div>
-                        </div>
-                        <MatchResults
-                            resumeText={resumeText}
-                            matches={matches}
-                            loading={loading}
-                            error={error}
-                            onFindMatches={handleFindMatches}
-                        />
-                    </div>
-                ) : null}
+                            </section>
+                        </>
+                    ) : null}
+
+                    {step === 3 ? (
+                        <>
+                            <section className="panel">
+                                <div className="panel-row">
+                                    <div>
+                                        <h2 className="panel-title">
+                                            Matching summary
+                                        </h2>
+                                        <p className="panel-copy">
+                                            {jobs.length} saved role
+                                            {jobs.length === 1 ? "" : "s"} and{" "}
+                                            {matches.length} ranked match
+                                            {matches.length === 1 ? "" : "es"}.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="button button--ghost"
+                                        onClick={() => {
+                                            setStep(2);
+                                            setError(null);
+                                        }}
+                                    >
+                                        Edit jobs
+                                    </button>
+                                </div>
+                            </section>
+                            <MatchResults
+                                resumeText={resumeText}
+                                matches={matches}
+                                loading={loading}
+                                error={error}
+                                onFindMatches={handleFindMatches}
+                            />
+                        </>
+                    ) : null}
+                </section>
             </div>
         </main>
     );

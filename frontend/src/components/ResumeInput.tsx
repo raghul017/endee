@@ -7,6 +7,7 @@ interface ResumeInputProps {
     error: string | null;
     onResumeTextChange: (value: string) => void;
     onSubmit: () => void;
+    loadingLabel: string;
 }
 
 export default function ResumeInput({
@@ -16,51 +17,55 @@ export default function ResumeInput({
     error,
     onResumeTextChange,
     onSubmit,
+    loadingLabel,
 }: ResumeInputProps) {
     return (
-        <section className="rounded-2xl bg-[#1a1d27] p-6 text-white shadow-xl">
-            <div className="mb-4">
-                <h2 className="text-2xl font-semibold">Step 1: Resume Input</h2>
-                <p className="mt-2 text-sm text-slate-300">
-                    Paste your resume here and index it in Endee before adding
-                    jobs.
+        <section className="panel">
+            <div className="section-heading">
+                <h2 className="editorial-heading">Paste your resume</h2>
+                <p className="section-copy">
+                    We&apos;ll extract your skills and index them as vectors in
+                    Endee
                 </p>
             </div>
 
-            <textarea
-                value={resumeText}
-                onChange={(event) => onResumeTextChange(event.target.value)}
-                placeholder="Paste your resume here"
-                className="min-h-64 w-full rounded-xl border border-slate-700 bg-[#0f1117] p-4 text-sm text-white outline-none transition focus:border-indigo-500"
-            />
-
-            <div className="mt-4 flex items-center gap-3">
-                <button
-                    type="button"
-                    onClick={onSubmit}
-                    disabled={loading}
-                    className="rounded-xl bg-indigo-500 px-4 py-2 font-medium text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    {loading ? "Indexing..." : "Submit Resume"}
-                </button>
-                {skills.length > 0 && !loading && !error ? (
-                    <span className="text-sm text-emerald-400">
-                        ✓ Resume indexed in Endee
-                    </span>
-                ) : null}
+            <div className="field-group">
+                <textarea
+                    value={resumeText}
+                    onChange={(event) => onResumeTextChange(event.target.value)}
+                    placeholder="Paste your resume here"
+                    className={`text-input text-area ${error ? "is-error" : ""}`}
+                />
+                {error ? <p className="field-error">{error}</p> : null}
             </div>
 
-            {error ? (
-                <p className="mt-3 text-sm text-red-400">{error}</p>
-            ) : null}
+            <div className="section-actions">
+                <button
+                    type="button"
+                    className="button button--primary"
+                    onClick={onSubmit}
+                    disabled={loading}
+                >
+                    {loading ? `${loadingLabel}···` : "Index resume"}
+                </button>
+            </div>
 
-            {skills.length > 0 ? (
-                <div className="mt-5 space-y-3">
-                    <h3 className="text-sm font-medium text-slate-200">
-                        Extracted Skills
-                    </h3>
-                    <SkillBadges skills={skills} />
-                </div>
+            {skills.length > 0 && !error ? (
+                <>
+                    <div className="status-banner status-banner--success">
+                        <span className="status-mark">✓</span>
+                        <span>Indexed in Endee</span>
+                        <span className="status-divider">·</span>
+                        <span>384-dim vector</span>
+                        <span className="status-divider">·</span>
+                        <span>cosine similarity</span>
+                    </div>
+
+                    <div className="skills-section">
+                        <p className="meta-label">Extracted skills</p>
+                        <SkillBadges skills={skills} />
+                    </div>
+                </>
             ) : null}
         </section>
     );

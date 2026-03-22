@@ -4,6 +4,7 @@ export interface AddedJob {
     id: string;
     title: string;
     company: string;
+    skillCount?: number;
 }
 
 interface JobInputProps {
@@ -11,6 +12,7 @@ interface JobInputProps {
     loading: boolean;
     error: string | null;
     onAddJob: (title: string, company: string, description: string) => void;
+    loadingLabel: string;
 }
 
 export default function JobInput({
@@ -18,6 +20,7 @@ export default function JobInput({
     loading,
     error,
     onAddJob,
+    loadingLabel,
 }: JobInputProps) {
     const [title, setTitle] = useState("");
     const [company, setCompany] = useState("");
@@ -31,85 +34,114 @@ export default function JobInput({
     }
 
     return (
-        <section className="rounded-2xl bg-[#1a1d27] p-6 text-white shadow-xl">
-            <div className="mb-4 flex items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-semibold">Step 2: Add Jobs</h2>
-                    <p className="mt-2 text-sm text-slate-300">
-                        Add jobs one by one. At least 1 job is required before
-                        matching.
-                    </p>
+        <section className="panel">
+            <div className="section-heading">
+                <h2 className="editorial-heading">Add target roles</h2>
+                <p className="section-copy">
+                    Build a short comparison set. The strongest semantic matches
+                    will rise to the top.
+                </p>
+            </div>
+
+            <div className="jobs-grid">
+                <div className="job-form">
+                    <div className="field-group">
+                        <label className="field-label" htmlFor="job-title">
+                            Title
+                        </label>
+                        <input
+                            id="job-title"
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                            placeholder="Full Stack Developer"
+                            className={`text-input ${error ? "is-error" : ""}`}
+                        />
+                    </div>
+
+                    <div className="field-group">
+                        <label className="field-label" htmlFor="job-company">
+                            Company
+                        </label>
+                        <input
+                            id="job-company"
+                            value={company}
+                            onChange={(event) => setCompany(event.target.value)}
+                            placeholder="Zepto"
+                            className={`text-input ${error ? "is-error" : ""}`}
+                        />
+                    </div>
+
+                    <div className="field-group">
+                        <label
+                            className="field-label"
+                            htmlFor="job-description"
+                        >
+                            Description
+                        </label>
+                        <textarea
+                            id="job-description"
+                            value={description}
+                            onChange={(event) =>
+                                setDescription(event.target.value)
+                            }
+                            placeholder="React, Node.js, TypeScript, PostgreSQL, Docker, WebSockets, real-time systems..."
+                            className={`text-input text-area text-area--job ${
+                                error ? "is-error" : ""
+                            }`}
+                        />
+                        {error ? <p className="field-error">{error}</p> : null}
+                    </div>
+
+                    <div className="job-form-footer">
+                        <button
+                            type="button"
+                            className="button button--primary button--mobile-full"
+                            onClick={handleAddJob}
+                            disabled={loading}
+                        >
+                            {loading ? `${loadingLabel}···` : "Add job"}
+                        </button>
+                    </div>
                 </div>
-                <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-sm text-indigo-200">
-                    {jobs.length} job{jobs.length === 1 ? "" : "s"}
-                </span>
-            </div>
 
-            <div className="space-y-3">
-                <input
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
-                    placeholder="Job title"
-                    className="w-full rounded-xl border border-slate-700 bg-[#0f1117] px-4 py-3 text-sm text-white outline-none transition focus:border-indigo-500"
-                />
-                <input
-                    value={company}
-                    onChange={(event) => setCompany(event.target.value)}
-                    placeholder="Company"
-                    className="w-full rounded-xl border border-slate-700 bg-[#0f1117] px-4 py-3 text-sm text-white outline-none transition focus:border-indigo-500"
-                />
-                <textarea
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder="Job description"
-                    className="min-h-48 w-full rounded-xl border border-slate-700 bg-[#0f1117] p-4 text-sm text-white outline-none transition focus:border-indigo-500"
-                />
-            </div>
+                <div className="jobs-list">
+                    <div className="jobs-list-header">
+                        <p className="meta-label">Added jobs</p>
+                        <span className="meta-inline">
+                            {jobs.length} total
+                        </span>
+                    </div>
 
-            <div className="mt-4">
-                <button
-                    type="button"
-                    onClick={handleAddJob}
-                    disabled={loading}
-                    className="rounded-xl bg-indigo-500 px-4 py-2 font-medium text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    {loading ? "Adding..." : "Add Job"}
-                </button>
-            </div>
-
-            {error ? (
-                <p className="mt-3 text-sm text-red-400">{error}</p>
-            ) : null}
-
-            {jobs.length > 0 ? (
-                <div className="mt-6 space-y-3">
-                    <h3 className="text-sm font-medium text-slate-200">
-                        Added Jobs
-                    </h3>
-                    <div className="space-y-3">
-                        {jobs.map((job) => (
-                            <div
-                                key={job.id}
-                                className="rounded-xl border border-slate-800 bg-[#0f1117] p-4"
-                            >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div>
-                                        <p className="font-medium text-white">
+                    {jobs.length === 0 ? (
+                        <p className="empty-copy">
+                            Saved roles will appear here once you start adding
+                            them.
+                        </p>
+                    ) : (
+                        <div>
+                            {jobs.map((job) => (
+                                <div key={job.id} className="job-row">
+                                    <div className="job-row-main">
+                                        <p className="job-row-title">
                                             {job.title}
                                         </p>
-                                        <p className="text-sm text-slate-400">
+                                        <p className="job-row-company">
                                             {job.company || "Unknown Company"}
                                         </p>
                                     </div>
-                                    <span className="font-mono text-xs text-slate-500">
-                                        {job.id.slice(0, 8)}
-                                    </span>
+                                    <div className="job-row-side">
+                                        <span className="skill-count-badge">
+                                            {(job.skillCount ?? 0)
+                                                .toString()}{" "}
+                                            skills
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            ) : null}
+            </div>
         </section>
     );
 }

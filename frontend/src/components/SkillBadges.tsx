@@ -8,12 +8,9 @@ export default function SkillBadges({ skills }: SkillBadgesProps) {
     }
 
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="tag-list">
             {skills.map((skill) => (
-                <span
-                    key={skill}
-                    className="rounded-full bg-indigo-500/20 px-3 py-1 text-sm text-indigo-200"
-                >
+                <span key={skill} className="tag">
                     {skill}
                 </span>
             ))}
