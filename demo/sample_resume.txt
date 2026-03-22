@@ -1,0 +1,6 @@
+Full Stack Software Engineer with 2 years of experience building production-grade web applications.
+Core stack: React, TypeScript, Node.js, Express, PostgreSQL, MongoDB, Redis.
+Built real-time collaborative tools using WebSockets. Designed REST APIs serving 10K+ requests/day.
+Docker and GitHub Actions for CI/CD. Familiar with distributed systems and microservices patterns.
+Data engineering internship: Python, SQL, ETL pipelines. AWS S3 and Lambda basics.
+Strong problem-solving background; competitive programming and system design experience.

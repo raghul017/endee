@@ -1,0 +1,70 @@
+const TECH_SKILLS = [
+    "react",
+    "typescript",
+    "javascript",
+    "node.js",
+    "nodejs",
+    "express",
+    "python",
+    "java",
+    "golang",
+    "rust",
+    "c++",
+    "sql",
+    "postgresql",
+    "mongodb",
+    "redis",
+    "docker",
+    "kubernetes",
+    "aws",
+    "gcp",
+    "azure",
+    "git",
+    "graphql",
+    "rest",
+    "api",
+    "microservices",
+    "tailwindcss",
+    "css",
+    "html",
+    "next.js",
+    "nextjs",
+    "vue",
+    "angular",
+    "spring",
+    "fastapi",
+    "django",
+    "flask",
+    "machine learning",
+    "deep learning",
+    "nlp",
+    "llm",
+    "vector",
+    "embedding",
+    "ci/cd",
+    "github actions",
+    "linux",
+    "bash",
+    "websockets",
+    "kafka",
+    "data engineering",
+    "data science",
+    "ai",
+    "ml",
+    "rag",
+    "langchain",
+    "distributed systems",
+    "system design",
+    "real-time",
+];
+
+export function extractSkills(text: string): string[] {
+    const lower = text.toLowerCase();
+    return TECH_SKILLS.filter((skill) => lower.includes(skill));
+}
+
+export function getSharedSkills(resumeText: string, jobText: string): string[] {
+    const resumeSkills = new Set(extractSkills(resumeText));
+    const jobSkills = new Set(extractSkills(jobText));
+    return [...resumeSkills].filter((s) => jobSkills.has(s));
+}

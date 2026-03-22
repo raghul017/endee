@@ -1,0 +1,27 @@
+[
+    {
+        "title": "Frontend Engineer",
+        "company": "Atlassian",
+        "description": "Build scalable UI components in React and TypeScript. 2+ years with modern JavaScript frameworks. GraphQL and REST API experience required. Bonus: performance optimization, accessibility."
+    },
+    {
+        "title": "Backend Engineer",
+        "company": "Razorpay",
+        "description": "Node.js engineer for payment infrastructure. PostgreSQL and Redis required. Microservices, Docker, and high-throughput API design. 2+ years backend experience."
+    },
+    {
+        "title": "Data Engineer",
+        "company": "Flipkart",
+        "description": "Python and SQL for large-scale data pipelines. Distributed systems, Kafka, AWS S3. ETL experience essential. Strong analytical thinking required."
+    },
+    {
+        "title": "Full Stack Developer",
+        "company": "Zepto",
+        "description": "React + Node.js for fast-growing startup. TypeScript, PostgreSQL, Docker required. Real-time features and WebSockets experience a strong plus."
+    },
+    {
+        "title": "ML Engineer",
+        "company": "Sarvam AI",
+        "description": "Python and deep learning for NLP/LLM projects. Model deployment via REST APIs. Familiarity with embeddings, vector search, and RAG architectures preferred."
+    }
+]
